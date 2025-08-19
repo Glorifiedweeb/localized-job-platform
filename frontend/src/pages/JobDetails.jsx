@@ -1,40 +1,40 @@
-// src/pages/JobDetails.jsx
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import API from "../utils/api";
 
-function JobDetails() {
+const JobDetails = () => {
   const { id } = useParams();
+  const [job, setJob] = useState(null);
+  const navigate = useNavigate();
 
-  // Example job data (later from DB)
-  const job = {
-    title: 'Frontend Developer',
-    company: 'TechCorp',
-    location: 'Lagos, Nigeria',
-    description: 'We are looking for a skilled frontend developer proficient in React.js and Tailwind CSS...',
-    requirements: ['2+ years experience', 'React.js knowledge', 'Good teamwork skills'],
-    salary: '₦250,000 / month',
-  };
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const res = await API.get(`/jobs/${id}`);
+        setJob(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchJob();
+  }, [id]);
+
+  if (!job) return <p className="p-6">Loading job details...</p>;
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold">{job.title}</h1>
-      <p className="text-gray-600">{job.company} - {job.location}</p>
-      <p className="mt-4">{job.description}</p>
+    <div className="max-w-3xl mx-auto p-6 border rounded shadow-sm">
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
+      <p className="text-gray-600 mb-4">{job.company}</p>
+      <p className="text-gray-800">{job.description}</p>
 
-      <h2 className="text-xl font-semibold mt-6">Requirements</h2>
-      <ul className="list-disc list-inside">
-        {job.requirements.map((req, index) => (
-          <li key={index}>{req}</li>
-        ))}
-      </ul>
-
-      <p className="mt-4 font-semibold">Salary: {job.salary}</p>
-
-      <button className="mt-6 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+      <button
+        onClick={() => navigate(`/jobs/${job._id}/apply`)}
+        className="mt-6 px-6 py-2 bg-black text-white rounded hover:bg-gray-800"
+      >
         Apply Now
       </button>
     </div>
   );
-}
+};
 
 export default JobDetails;

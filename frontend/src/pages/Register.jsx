@@ -1,80 +1,41 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
 
-function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("employee"); // default
+const Register = () => {
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "employee" });
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Save user role + token to localStorage (replace with API call later)
-    localStorage.setItem("token", "dummy-auth-token");
-    localStorage.setItem("role", role);
-
-    // Redirect to home
-    navigate("/");
+    try {
+      await API.post("/auth/register", form);
+      alert("Registered successfully! Please login.");
+      navigate("/login");
+    } catch (err) {
+      alert(err.response?.data?.message || "Error registering");
+    }
   };
 
   return (
-    <section className="bg-gray-50">
-      <div className="max-w-md mx-auto px-4 py-10">
-        <h2 className="text-3xl font-bold text-center mb-6">Register</h2>
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow">
-          {/* Name */}
-          <input
-            type="text"
-            placeholder="Full Name"
-            className="w-full border border-gray-300 p-3 rounded-lg mb-4"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-
-          {/* Email */}
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full border border-gray-300 p-3 rounded-lg mb-4"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          {/* Password */}
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full border border-gray-300 p-3 rounded-lg mb-4"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          {/* Role Selection */}
-          <select
-            className="w-full border border-gray-300 p-3 rounded-lg mb-4"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="employee">I am an Employee</option>
-            <option value="employer">I am an Employer</option>
-          </select>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-          >
-            Register
-          </button>
-        </form>
-      </div>
-    </section>
+    <div className="max-w-md mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Register</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input name="name" type="text" placeholder="Full Name" onChange={handleChange} className="border p-2 w-full" />
+        <input name="email" type="email" placeholder="Email" onChange={handleChange} className="border p-2 w-full" />
+        <input name="password" type="password" placeholder="Password" onChange={handleChange} className="border p-2 w-full" />
+        <select name="role" onChange={handleChange} className="border p-2 w-full">
+          <option value="employee">Employee</option>
+          <option value="employer">Employer</option>
+        </select>
+        <button className="w-full px-6 py-2 bg-black text-white rounded hover:bg-gray-800">Register</button>
+      </form>
+    </div>
   );
-}
+};
 
 export default Register;
